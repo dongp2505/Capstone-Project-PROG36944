@@ -2,21 +2,26 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Capstone_Project_PROG36944.Data;
+using Capstone_Project_PROG36944.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Capstone_Project_PROG36944.Data;
-using Capstone_Project_PROG36944.Models;
 
 namespace Capstone_Project_PROG36944.Controllers
 {
+    [Authorize(Roles = "Admin, Manager, Employee")]
     public class TaskItemsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public TaskItemsController(ApplicationDbContext context)
+        public TaskItemsController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: TaskItems
@@ -47,6 +52,7 @@ namespace Capstone_Project_PROG36944.Controllers
         }
 
         // GET: TaskItems/Create
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             ViewData["AssignedEmployeeId"] = new SelectList(_context.Employees, "EmployeeId", "Email");
@@ -59,7 +65,7 @@ namespace Capstone_Project_PROG36944.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("TaskItemId,Title,Description,DueDate,ProjectId,AssignedEmployeeId")] TaskItem taskItem)
+        public async Task<IActionResult> Create([Bind("TaskItemId,Title,Description,Priority,Status,DueDate,ProjectId,AssignedEmployeeId")] TaskItem taskItem)
         {
             if (ModelState.IsValid)
             {
@@ -73,21 +79,21 @@ namespace Capstone_Project_PROG36944.Controllers
         }
 
         // GET: TaskItems/Edit/5
+        [Authorize(Roles = "Admin, Manager")]
         public async Task<IActionResult> Edit(int? id)
         {
+
             if (id == null)
             {
                 return NotFound();
             }
 
-            var taskItem = await _context.TaskItems.FindAsync(id);
-            if (taskItem == null)
+            var taskItemModel = await _context.TaskItems.FindAsync(id);
+            if (taskItemModel == null)
             {
                 return NotFound();
             }
-            ViewData["AssignedEmployeeId"] = new SelectList(_context.Employees, "EmployeeId", "Email", taskItem.AssignedEmployeeId);
-            ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "Name", taskItem.ProjectId);
-            return View(taskItem);
+            return View(taskItemModel);
         }
 
         // POST: TaskItems/Edit/5
@@ -95,7 +101,8 @@ namespace Capstone_Project_PROG36944.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("TaskItemId,Title,Description,DueDate,ProjectId,AssignedEmployeeId")] TaskItem taskItem)
+        [Authorize(Roles = "Admin, Manager")]
+        public async Task<IActionResult> Edit(int id, [Bind("TaskItemId,Title,Description,Priority,Status,DueDate,ProjectId,AssignedEmployeeId")] TaskItem taskItem)
         {
             if (id != taskItem.TaskItemId)
             {
@@ -150,6 +157,7 @@ namespace Capstone_Project_PROG36944.Controllers
         // POST: TaskItems/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var taskItem = await _context.TaskItems.FindAsync(id);

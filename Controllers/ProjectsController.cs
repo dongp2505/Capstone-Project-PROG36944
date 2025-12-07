@@ -2,21 +2,26 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Capstone_Project_PROG36944.Data;
+using Capstone_Project_PROG36944.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Capstone_Project_PROG36944.Data;
-using Capstone_Project_PROG36944.Models;
 
 namespace Capstone_Project_PROG36944.Controllers
 {
+    [Authorize(Roles = "Admin, Manager, Employee")]
     public class ProjectsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public ProjectsController(ApplicationDbContext context)
+        public ProjectsController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Projects
@@ -44,6 +49,7 @@ namespace Capstone_Project_PROG36944.Controllers
         }
 
         // GET: Projects/Create
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
@@ -66,19 +72,20 @@ namespace Capstone_Project_PROG36944.Controllers
         }
 
         // GET: Projects/Edit/5
+        [Authorize(Roles = "Admin, Manager")]
         public async Task<IActionResult> Edit(int? id)
         {
+
             if (id == null)
             {
                 return NotFound();
             }
-
-            var project = await _context.Projects.FindAsync(id);
-            if (project == null)
+            var projectModel = await _context.Projects.FindAsync(id);
+            if (projectModel == null)
             {
                 return NotFound();
             }
-            return View(project);
+            return View(projectModel);
         }
 
         // POST: Projects/Edit/5
@@ -86,6 +93,7 @@ namespace Capstone_Project_PROG36944.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin, Manager")]
         public async Task<IActionResult> Edit(int id, [Bind("ProjectId,Name,Description,StartDate,EndDate")] Project project)
         {
             if (id != project.ProjectId)
@@ -137,6 +145,7 @@ namespace Capstone_Project_PROG36944.Controllers
         // POST: Projects/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var project = await _context.Projects.FindAsync(id);
