@@ -1,0 +1,36 @@
+﻿@model IEnumerable<Capstone_Project_PROG36944.Models.TaskItemSummary>
+
+@{
+    ViewData["Title"] = "Task Summary (Stored Procedure)";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    This page is powered by SQL Server stored procedure
+    <strong>dbo.usp_GetTasksWithDetails</strong>.
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Task ID</th>
+            <th>Title</th>
+            <th>Due Date</th>
+            <th>Project</th>
+            <th>Assigned Employee</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.TaskItemId</td>
+                <td>@item.Title</td>
+                <td>@item.DueDate?.ToString("yyyy-MM-dd")</td>
+                <td>@item.ProjectName</td>
+                <td>@item.EmployeeName</td>
+            </tr>
+        }
+    </tbody>
+</table>
