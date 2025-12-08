@@ -1,6 +1,8 @@
 using Capstone_Project_PROG36944.Data;
+using Capstone_Project_PROG36944.Data.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+
 
 namespace Capstone_Project_PROG36944
 {
@@ -24,6 +26,10 @@ namespace Capstone_Project_PROG36944
             builder.Services.AddRazorPages();
             builder.Services.AddControllersWithViews();
 
+            builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+
+
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -40,6 +46,7 @@ namespace Capstone_Project_PROG36944
             app.UseRouting();
 
             app.UseAuthorization();
+            app.UseAuthentication();
 
             app.MapControllerRoute(
                 name: "default",
