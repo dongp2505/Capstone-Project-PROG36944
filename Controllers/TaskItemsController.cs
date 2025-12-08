@@ -174,5 +174,16 @@ namespace Capstone_Project_PROG36944.Controllers
         {
             return _context.TaskItems.Any(e => e.TaskItemId == id);
         }
+
+        // GET: TaskItems/Summary
+        // Uses stored procedure dbo.usp_GetTasksWithDetails
+        public async Task<IActionResult> Summary()
+        {
+            var summaries = await _context.TaskItemSummaries
+                .FromSqlRaw("EXEC dbo.usp_GetTasksWithDetails")
+                .ToListAsync();
+
+            return View(summaries);
+        }
     }
 }
